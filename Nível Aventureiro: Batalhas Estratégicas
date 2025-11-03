@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+typedef struct {
+    char nome[50];
+    char cor[20];
+    int tropas;
+} Territorio;
+
+void simularAtaque(Territorio *atacante, Territorio *defensor) {
+    int dadoA = rand() % 6 + 1;
+    int dadoD = rand() % 6 + 1;
+
+    printf("\n🎲 Dado atacante: %d | Dado defensor: %d\n", dadoA, dadoD);
+
+    if (dadoA > dadoD) {
+        defensor->tropas--;
+        printf("💥 %s venceu! %s perde 1 tropa.\n", atacante->nome, defensor->nome);
+        if (defensor->tropas <= 0) {
+            printf("🏴 Território %s conquistado!\n", defensor->nome);
+            strcpy(defensor->cor, atacante->cor);
+            defensor->tropas = 1;
+        }
+    } else {
+        printf("🛡️ Defesa bem-sucedida!\n");
+    }
+}
+
+int main() {
+    srand(time(NULL));
+    int qtd = 5;
+    Territorio *territorios = (Territorio *) calloc(qtd, sizeof(Territorio));
+
+    for (int i = 0; i < qtd; i++) {
+        printf("\n=== Cadastro do Território %d ===\n", i + 1);
+        printf("Nome: ");
+        fgets(territorios[i].nome, 50, stdin);
+        territorios[i].nome[strcspn(territorios[i].nome, "\n")] = '\0';
+        printf("Cor do Exército: ");
+        fgets(territorios[i].cor, 20, stdin);
+        territorios[i].cor[strcspn(territorios[i].cor, "\n")] = '\0';
+        printf("Número de Tropas: ");
+        scanf("%d", &territorios[i].tropas);
+        getchar();
+    }
+
+    int opcaoA, opcaoD;
+    do {
+        printf("\nEscolha território atacante (1-5, 0 para sair): ");
+        scanf("%d", &opcaoA);
+        if (opcaoA == 0) break;
+        printf("Escolha território defensor (1-5): ");
+        scanf("%d", &opcaoD);
+
+        simularAtaque(&territorios[opcaoA - 1], &territorios[opcaoD - 1]);
+    } while (1);
+
+    free(territorios);
+    return 0;
+}
