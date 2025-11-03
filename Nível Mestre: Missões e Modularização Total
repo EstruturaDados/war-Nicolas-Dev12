@@ -7,15 +7,18 @@
 
 typedef struct {
     char nome[50];
-    char cor[20];
+    char corExercito[20];
     int tropas;
 } Territorio;
 
+// --- Prototipagem das funções ---
 void inicializar(Territorio *t);
 void exibirMapa(const Territorio *t);
 void atacar(Territorio *t);
 int verificarMissao(const Territorio *t);
+void menu();
 
+// --- Função principal ---
 int main() {
     srand(time(NULL));
     Territorio territorios[QTD];
@@ -23,23 +26,123 @@ int main() {
 
     int opcao;
     do {
-        printf("\n=== MENU ===\n");
-        printf("1 - Atacar\n");
-        printf("2 - Verificar Missão\n");
-        printf("0 - Sair\n");
-        printf("Escolha: ");
+        menu();
         scanf("%d", &opcao);
         getchar();
 
         switch (opcao) {
-            case 1: atacar(territorios); break;
-            case 2: 
-                if (verificarMissao(territorios))
-                    printf(" Missão Cumprida!\n");
-                else
-                    printf(" Ainda há objetivos a conquistar.\n");
+            case 1:
+                atacar(territorios);
                 break;
+            case 2:
+                if (verificarMissao(territorios))
+                    printf("\n Missão Cumprida! Você venceu o jogo!\n");
+                else
+                    printf("\n Ainda há missões pendentes.\n");
+                break;
+            case 0:
+                printf("\nSaindo do jogo... \n");
+                break;
+            default:
+                printf("Opção inválida!\n");
         }
+    } while (opcao != 0);
+
+    return 0;
+}
+
+// --- Implementação das funções ---
+void menu() {
+    printf("\n=== MENU PRINCIPAL ===\n");
+    printf("1 - Atacar\n");
+    printf("2 - Verificar Missão\n");
+    printf("0 - Sair\n");
+    printf("Escolha: ");
+}
+
+// Inicializa territórios automaticamente
+void inicializar(Territorio *t) {
+    strcpy(t[0].nome, "Brasil");
+    strcpy(t[1].nome, "Canadá");
+    strcpy(t[2].nome, "Japão");
+    strcpy(t[3].nome, "Egito");
+    strcpy(t[4].nome, "Alemanha");
+
+    strcpy(t[0].corExercito, "Vermelho");
+    strcpy(t[1].corExercito, "Verde");
+    strcpy(t[2].corExercito, "Azul");
+    strcpy(t[3].corExercito, "Amarelo");
+    strcpy(t[4].corExercito, "Verde");
+
+    for (int i = 0; i < QTD; i++)
+        t[i].tropas = rand() % 5 + 2;
+
+    printf("\n🌍 Territórios Iniciados!\n");
+    exibirMapa(t);
+}
+
+void exibirMapa(const Territorio *t) {
+    printf("\n=== ESTADO ATUAL DO MAPA ===\n");
+    for (int i = 0; i < QTD; i++) {
+        printf("%d - %s | Exército: %s | Tropas: %d\n",
+               i + 1, t[i].nome, t[i].corExercito, t[i].tropas);
+    }
+}
+
+void atacar(Territorio *t) {
+    int a, d;
+    exibirMapa(t);
+
+    printf("\nEscolha território atacante (1-5): ");
+    scanf("%d", &a);
+    printf("Escolha território defensor (1-5): ");
+    scanf("%d", &d);
+
+    if (a < 1 || a > 5 || d < 1 || d > 5 || a == d) {
+        printf("❌ Escolha inválida!\n");
+        return;
+    }
+
+    int dadoA = rand() % 6 + 1;
+    int dadoD = rand() % 6 + 1;
+
+    printf("\n Dados → Ataque: %d | Defesa: %d\n", dadoA, dadoD);
+
+    if (dadoA > dadoD) {
+        t[d - 1].tropas--;
+        printf(" %s venceu o ataque!\n", t[a - 1].nome);
+        if (t[d - 1].tropas <= 0) {
+            printf("🏴 %s foi conquistado por %s!\n",
+                   t[d - 1].nome, t[a - 1].corExercito);
+            strcpy(t[d - 1].corExercito, t[a - 1].corExercito);
+            t[d - 1].tropas = 1;
+        }
+    } else {
+        printf(" %s defendeu com sucesso!\n", t[d - 1].nome);
+    }
+}
+
+// Verifica se missões foram cumpridas
+int verificarMissao(const Territorio *t) {
+    int conquistados = 0;
+    int verdes = 0;
+
+    for (int i = 0; i < QTD; i++) {
+        if (strcmp(t[i].corExercito, "Verde") == 0)
+            verdes++;
+        if (strcmp(t[i].corExercito, "Vermelho") == 0)
+            conquistados++;
+    }
+
+    // Missões:
+    // 1. Destruir exército verde (nenhum território verde)
+    // 2. Conquistar 3 territórios vermelhos
+    if (verdes == 0 || conquistados >= 3)
+        return 1;
+
+    return 0;
+}
+
     } while (opcao != 0);
 
     return 0;
