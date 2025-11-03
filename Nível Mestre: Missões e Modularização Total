@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#define QTD 5
+
+typedef struct {
+    char nome[50];
+    char cor[20];
+    int tropas;
+} Territorio;
+
+void inicializar(Territorio *t);
+void exibirMapa(const Territorio *t);
+void atacar(Territorio *t);
+int verificarMissao(const Territorio *t);
+
+int main() {
+    srand(time(NULL));
+    Territorio territorios[QTD];
+    inicializar(territorios);
+
+    int opcao;
+    do {
+        printf("\n=== MENU ===\n");
+        printf("1 - Atacar\n");
+        printf("2 - Verificar Missão\n");
+        printf("0 - Sair\n");
+        printf("Escolha: ");
+        scanf("%d", &opcao);
+        getchar();
+
+        switch (opcao) {
+            case 1: atacar(territorios); break;
+            case 2: 
+                if (verificarMissao(territorios))
+                    printf(" Missão Cumprida!\n");
+                else
+                    printf(" Ainda há objetivos a conquistar.\n");
+                break;
+        }
+    } while (opcao != 0);
+
+    return 0;
+}
